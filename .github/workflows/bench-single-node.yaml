@@ -1,0 +1,35 @@
+name: bench single node
+on:
+  push:
+    branches: [bench-single-node]
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        machine: [1, 2, 3]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install kind v0.33.0
+      run: |
+        curl -sLo /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64
+        chmod +x /usr/local/bin/kind
+        kind version
+        kubectl version --client
+        nproc; free -m
+    - name: Bench
+      env:
+        REPS: "3"
+        OUT: results-${{ matrix.machine }}.csv
+      run: bash hack/bench-single-node/bench.sh
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: results-${{ matrix.machine }}
+        path: hack/bench-single-node/results-*.csv
