@@ -18,8 +18,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install kind v0.33.0
       run: |
-        curl -sLo /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64
-        chmod +x /usr/local/bin/kind
+        curl -sLo "$RUNNER_TEMP/kind" https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64
+        sudo install -m 0755 "$RUNNER_TEMP/kind" /usr/local/bin/kind
         kind version
         kubectl version --client
         nproc; free -m
